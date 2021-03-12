@@ -1,0 +1,91 @@
+#####################################################
+# Simple technology adoption lifecycle model
+# Author: Erik Brown, based on input from John Grefenstette
+# Date: 13 Mar 2022
+
+condition TECH_LIFECYCLE {
+    transmission_mode = proximity
+    transmissibility = 1.0
+    start_state = Start
+    admin_start = AdminStart
+    exposed_state = Aware
+
+    state Start {
+        # Wait two days for setup to complete
+        wait(48)
+        next(Unaware)
+    }
+
+    state Unaware {
+        # Set susceptibility for becoming aware based on agent category
+        TECH_LIFECYCLE.trans = 0
+        TECH_LIFECYCLE.sus = base_awareness[my_category]
+        wait()
+
+        if (my_category == INNOVATOR) next(UnawareInnovator)
+        default()
+    }
+
+    state UnawareInnovator {
+        # Innovators are more likely to learn about new technologies
+        wait(24)
+
+        next(Aware) with prob(0.1)
+        default(UnawareInnovator)
+    }
+
+    state Aware {
+        TECH_LIFECYCLE.sus = 0
+
+        # time to wait between checks is based on agent category
+        wait(24 * wait_days[my_category])
+
+        next(Desire) with prob(0.5)
+        default(Aware)
+    }
+    
+    state Desire {
+        # time to wait between checks is based on agent category
+        wait(24 * wait_days[my_category])
+
+        next(Action) with prob(0.5)
+        default(Desire)
+    }
+
+    state Action {
+        # time to wait between checks is based on agent category
+        wait(24 * wait_days[my_category])
+
+        next(Usage) with prob(0.5)
+        default(Action)
+    }
+
+    state Usage {
+        # time to wait between checks is based on agent category
+        wait(24 * wait_days[my_category])
+
+        next(Adoption) with prob(0.5)
+        default(Usage)
+    }
+
+    state Adoption {
+
+    }
+
+
+
+    state AdminStart {
+        wait(24)
+        next(AdminCount)
+    }
+
+    state AdminCount {
+        cumulative_counts[INNOVATOR] = adopter_counts[INNOVATOR]
+        cumulative_counts[EARLY_ADOPTER] = cumulative_counts[INNOVATOR] + adopter_counts[EARLY_ADOPTER]
+        cumulative_counts[EARLY_MAJORITY] = cumulative_counts[EARLY_ADOPTER] + adopter_counts[EARLY_MAJORITY]
+        cumulative_counts[LATE_MAJORITY] = cumulative_counts[EARLY_MAJORITY] + adopter_counts[LATE_MAJORITY]
+        cumulative_counts[LAGGARD] = cumulative_counts[LATE_MAJORITY] + adopter_counts[LAGGARD]
+        next(Excluded)
+    }
+}
+

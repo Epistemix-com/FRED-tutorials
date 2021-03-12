@@ -1,0 +1,19 @@
+#####################################################
+# Simple setup for technology adoption model
+# Author: Erik Brown
+# Date: 13 Mar 2021
+
+variables {
+    global_list adopter_counts cumulative_counts base_awareness wait_days
+    base_awareness = list(0, 0.8, 0.4, 0.2, 0.1, 0.0)
+    wait_days = list(1, 1, 3, 7, 14, 30)
+
+    global INNOVATOR EARLY_ADOPTER EARLY_MAJORITY LATE_MAJORITY LAGGARD
+    INNOVATOR = 1
+    EARLY_ADOPTER = 2
+    EARLY_MAJORITY = 3
+    LATE_MAJORITY = 4
+    LAGGARD = 5
+
+    personal my_category
+}

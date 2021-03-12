@@ -1,0 +1,58 @@
+Model Notes
+
+global_list categories_list
+list categories = (0, 1, 2, 3, 4, 5)
+list populations
+list cum_populations
+list base = (0.5, 0.25, 0.10, 0.05, 0.0)
+list wait_days = (1, 3, 7, 14, 30)
+
+total_aware
+total_desire
+total_action
+total_usage
+total_adoption
+
+product_stickiness = 80%
+
+Start
+    my_category = select(categories, (2.5, 13.5, 34, 34, 16))
+    population[my_category] += 1
+    if (my_category==0) next(Innovator)
+    if (my_category==1) next(EarlyAdoptor)
+    ...
+
+AdminStart
+    wait(24)
+    cum_populations[0] = populations[0]
+    cum_populations[1] = cum_populations[0] + popualtions[1]
+    cum_populations[2] = cum_populations[1] + popualtions[2]
+    cum_populations[3] = cum_populations[2] + popualtions[3]
+    cum_populations[4] = cum_populations[3] + popualtions[4]
+    cum_populations[5] = cum_populations[4] + popualtions[5]
+    next(Excluded)
+
+Unaware
+    if Innovator, 80% to ToAware
+
+ToAware
+    total_aware += 1
+    next(Aware)
+
+Aware
+    wait(24*wait_days[my_category])
+    next(ToDesire)
+        with prob(base[my_category]
+                    + (total_aware / cum_population[my_category])
+    default(Aware)
+
+ToDesire
+    total_desire += 1
+    next(Desire)
+
+Desire
+    wait(24*wait_days[my_category])
+    next(ToAction)
+        with prob(base[my_category]
+                    + (total_desire / cum_population[my_category])
+    default(Desire)

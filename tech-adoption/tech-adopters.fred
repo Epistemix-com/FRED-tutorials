@@ -1,0 +1,57 @@
+#####################################################
+# Simple technology adoption lifecycle model
+# Author: Erik Brown, based on input from John Grefenstette
+# Date: 13 Mar 2022
+
+condition TECH_ADOPTERS {
+    start_state = Start
+
+    state Start {
+        wait(0)
+        
+        # accepted probabilities, see https://www.ou.edu/deptcomm/dodjcc/groups/99A2/theories.htm
+        next(Innovator) with prob(0.025)
+        next(EarlyAdopter) with prob(0.135)
+        next(EarlyMajority) with prob(0.34)
+        next(LateMajority) with prob(0.34)
+        next(Laggard) with prob(0.16)
+        default(Laggard)
+    }
+
+    state Innovator {
+        my_category = INNOVATOR
+        adopter_counts[INNOVATOR] = adopter_counts[INNOVATOR] + 1
+        wait()
+        default()
+    }
+
+    state EarlyAdopter {
+        my_category = EARLY_ADOPTER
+        adopter_counts[EARLY_ADOPTER] = adopter_counts[EARLY_ADOPTER] + 1
+        wait()
+        default()
+    }
+    
+    state EarlyMajority {
+        my_category = EARLY_MAJORITY
+        adopter_counts[EARLY_MAJORITY] = adopter_counts[EARLY_MAJORITY] + 1
+        wait()
+        default()
+    }
+
+    state LateMajority {
+        my_category = LATE_MAJORITY
+        adopter_counts[LATE_MAJORITY] = adopter_counts[LATE_MAJORITY] + 1
+        wait()
+        default()
+    }
+
+    state Laggard {
+        my_category = LAGGARD
+        adopter_counts[LAGGARD] = adopter_counts[LAGGARD] + 1
+        wait()
+        default()
+    }
+
+}
+
