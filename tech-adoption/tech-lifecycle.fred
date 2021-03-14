@@ -7,56 +7,76 @@ condition TECH_LIFECYCLE {
     transmission_mode = proximity
     transmissibility = 1.0
     start_state = Start
-    admin_start = AdminStart
-    exposed_state = Aware
+    meta_start_state = MetaStart
+    exposed_state = ToDesire
 
     state Start {
         # Wait two days for setup to complete
         wait(48)
-        next(Unaware)
+        default(Unaware)
     }
 
     state Unaware {
-        # Set susceptibility for becoming aware based on agent category
+        TECH_LIFECYCLE.sus = 0
         TECH_LIFECYCLE.trans = 0
-        TECH_LIFECYCLE.sus = base_awareness[my_category]
-        wait()
 
-        if (my_category == INNOVATOR) next(UnawareInnovator)
-        default()
-    }
-
-    state UnawareInnovator {
-        # Innovators are more likely to learn about new technologies
+        # Set susceptibility for becoming aware based on agent category
         wait(24)
 
-        next(Aware) with prob(0.1)
-        default(UnawareInnovator)
+        default(UnawareCheck)
+    }
+
+    state UnawareCheck {
+        # time to wait between checks is based on agent category
+        wait(24 * wait_days[my_category])
+
+        # Allow awareness across population to spread based on inherent interest
+        next(Aware) with prob(base_interest[my_category])
+        default(UnawareCheck)
     }
 
     state Aware {
-        TECH_LIFECYCLE.sus = 0
-
-        # time to wait between checks is based on agent category
+        # Once aware of the technology, become open for influence
+        TECH_LIFECYCLE.sus = base_interest[my_category]
         wait(24 * wait_days[my_category])
 
-        next(Desire) with prob(0.5)
+        # Innovators transition to Desire based on existing Desire population
+        # Other categories transition only based on "transmission" for another agent
+        if (my_category == INNOVATOR) then next(ToDesire) with prob((total_desire+1) / cumulative_counts[my_category])
         default(Aware)
+    }
+
+    state ToDesire {
+        # At the Desire state, agents can "transmit" interest to other agents
+        TECH_LIFECYCLE.sus = 0
+        TECH_LIFECYCLE.trans = 1
+
+        total_desire = total_desire + 1
+        desire_counts[my_category] = desire_counts[my_category] + 1
+        wait(0)
+        next(Desire)
     }
     
     state Desire {
-        # time to wait between checks is based on agent category
         wait(24 * wait_days[my_category])
 
-        next(Action) with prob(0.5)
+        # Transition to Action based on % of population of interest (up to my category)
+        next(ToAction) with prob((total_action+1) / cumulative_counts[my_category])
         default(Desire)
+    }
+
+    state ToAction {
+        total_action = total_action + 1
+        wait(0)
+        next(Action)
     }
 
     state Action {
         # time to wait between checks is based on agent category
         wait(24 * wait_days[my_category])
 
-        next(Usage) with prob(0.5)
+        # Transition to Usage based on inherent interest level
+        next(Usage) with prob(base_interest[my_category])
         default(Action)
     }
 
@@ -64,27 +84,43 @@ condition TECH_LIFECYCLE {
         # time to wait between checks is based on agent category
         wait(24 * wait_days[my_category])
 
-        next(Adoption) with prob(0.5)
+        next(ToAdoption) with prob(product_stickiness * base_interest[my_category])
         default(Usage)
     }
 
-    state Adoption {
+    state ToAdoption {
+        total_adoption = total_adoption + 1
+        adoption_counts[my_category] = adoption_counts[my_category] + 1
+        #print_csv(adoption.csv, adoption_counts[1], adoption_counts[2], adoption_counts[3], adoption_counts[4], adoption_counts[5])
+        wait(0)
 
+        # Use separate state here to make this easier to plot
+        if (my_category == INNOVATOR) then next(InnovatorAdoption)
+        if (my_category == EARLY_ADOPTER) then next(EarlyAdopterAdoption)
+        if (my_category == EARLY_MAJORITY) then next(EarlyMajorityAdoption)
+        if (my_category == LATE_MAJORITY) then next(LateMajorityAdoption)
+        default(LaggardAdoption)
     }
 
+    state InnovatorAdoption { }
+    state EarlyAdopterAdoption { }
+    state EarlyMajorityAdoption { }
+    state LateMajorityAdoption { }
+    state LaggardAdoption { }
 
-
-    state AdminStart {
+    state MetaStart {
         wait(24)
-        next(AdminCount)
+        next(MetaCount)
     }
 
-    state AdminCount {
+    state MetaCount {
+        cumulative_counts[0] = 1
         cumulative_counts[INNOVATOR] = adopter_counts[INNOVATOR]
         cumulative_counts[EARLY_ADOPTER] = cumulative_counts[INNOVATOR] + adopter_counts[EARLY_ADOPTER]
         cumulative_counts[EARLY_MAJORITY] = cumulative_counts[EARLY_ADOPTER] + adopter_counts[EARLY_MAJORITY]
         cumulative_counts[LATE_MAJORITY] = cumulative_counts[EARLY_MAJORITY] + adopter_counts[LATE_MAJORITY]
         cumulative_counts[LAGGARD] = cumulative_counts[LATE_MAJORITY] + adopter_counts[LAGGARD]
+        wait(0)
         next(Excluded)
     }
 }

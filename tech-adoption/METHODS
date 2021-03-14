@@ -3,16 +3,27 @@ fred_delete -f -k tech
 
 fred_job -k tech -p main.fred -n 1 -m 1
 
-exit
-
 fred_plot -o adopters -k tech -v TECH_ADOPTERS.newInnovator \
 -v TECH_ADOPTERS.newEarlyAdopter \
 -v TECH_ADOPTERS.newEarlyMajority \
 -v TECH_ADOPTERS.newLateMajority \
 -v TECH_ADOPTERS.newLaggard \
--b -t "Technology Adoption Model" -l "Agent Categories" -d 0 -w --clean
+-b -t "Technology Adoptors" -d 0 -w --clean
 
+fred_plot -o states -k tech \
+-v TECH_LIFECYCLE.totUnaware \
+-v TECH_LIFECYCLE.totAware \
+-v TECH_LIFECYCLE.totDesire \
+-v TECH_LIFECYCLE.totAction \
+-v TECH_LIFECYCLE.totUsage \
+-v TECH_LIFECYCLE.totToAdoption \
+-t "Technology Adoption by States" -w -d 0 --clean
 
-fred_plot -o daily -k tech \
--v TECH_LIFECYCLE.newAware \
--b -t "Technology Adoption Model" -l "Weekly Incidence" -d 0 --clean
+fred_plot -o weekly -k tech \
+-v TECH_LIFECYCLE.totInnovatorAdoption \
+-v TECH_LIFECYCLE.totEarlyAdopterAdoption \
+-v TECH_LIFECYCLE.totEarlyMajorityAdoption \
+-v TECH_LIFECYCLE.totLateMajorityAdoption \
+-v TECH_LIFECYCLE.totLaggardAdoption \
+-t "Technology Adoption Model" -w -d 0 --clean
+
