@@ -1,0 +1,17 @@
+
+#! /usr/bin/env bash
+set -e
+
+fredJobKey=tech-adoption-01
+
+echo "Installaing synthetic population data"
+fred_install_location_codes.py Jefferson_County_PA
+
+echo "Running the model"
+fred_job -k ${fredJobKey} -p main.fred -n 1 -m 1
+
+echo "Uploading the results as ${fredJobKey}.zip to s3"
+fred_cloud_stage_results ${fredJobKey} /fred/results
+
+echo "Skipping DB insert: fred_results_to_db -k ${fredJobKey}"
+
