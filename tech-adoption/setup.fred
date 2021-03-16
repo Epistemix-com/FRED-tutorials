@@ -15,11 +15,13 @@ variables {
     LATE_MAJORITY = 4
     LAGGARD = 5
 
+    global a1 a2 a3 a4 a5
     global total_desire total_action total_adoption product_stickiness
     global_list desire_counts adoption_counts
     personal my_category
 
     product_stickiness = 0.75
+    adoption_counts = list(0,0,0,0,0,0)
 
     adopter_counts.output = 1
     cumulative_counts.output = 1

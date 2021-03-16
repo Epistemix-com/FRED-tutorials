@@ -91,7 +91,12 @@ condition TECH_LIFECYCLE {
     state ToAdoption {
         total_adoption = total_adoption + 1
         adoption_counts[my_category] = adoption_counts[my_category] + 1
-        #print_csv(adoption.csv, adoption_counts[1], adoption_counts[2], adoption_counts[3], adoption_counts[4], adoption_counts[5])
+        a1 = adoption_counts[1]
+        a2 = adoption_counts[2]
+        a3 = adoption_counts[3]
+        a4 = adoption_counts[4]
+        a5 = adoption_counts[5]
+        if (total_adoption % 20 == 0) then print_csv(adoptors.csv, a1, a2, a3, a4, a5)
         wait(0)
 
         # Use separate state here to make this easier to plot

@@ -6,11 +6,10 @@
 simulation {
     locations = Jefferson_County_PA 
     start_date = 2022-Jan-01
-    end_date = 2023-Dec-31
+    end_date = 2022-Dec-31
     weekly_data = 1
 }
 
 include setup.fred
 include tech-adopters.fred
 include tech-lifecycle.fred
-##include tech-copy.fred
